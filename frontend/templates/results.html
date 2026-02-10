@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Railway Booking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <div class="header-inner">
+                <div class="brand">
+                    <div class="brand-mark" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M3 6h18v2H3V6Zm0 5h18v2H3v-2Zm0 5h10v2H3v-2Z"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <div class="brand-title">Railway Ticketing</div>
+                        <div class="brand-subtitle">Schedules and availability</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            {% include 'navbar.html' %}
+
+            <div class="page-head">
+                <div>
+                    <h1 class="page-title">Search results</h1>
+                    {% if search_query %}
+                        <p class="page-subtitle">Filtered by: <span class="mono">{{ search_query }}</span></p>
+                    {% else %}
+                        <p class="page-subtitle">Showing all available trains in the dataset.</p>
+                    {% endif %}
+                </div>
+                <div class="page-actions">
+                    <a class="btn btn-ghost" href="{{ url_for('index') }}">New search</a>
+                </div>
+            </div>
+
+            {% if trains %}
+            <div class="section">
+                <div class="section-head">
+                    <h2 class="section-title">Trains ({{ trains|length }})</h2>
+                </div>
+
+                <div class="table card">
+                    <div class="table-row table-head">
+                        <div>Train</div>
+                        <div>Name</div>
+                        <div>Route</div>
+                        <div>Time</div>
+                        <div>Availability</div>
+                        <div class="text-right">From</div>
+                        <div class="text-right"></div>
+                    </div>
+                    {% for train in trains %}
+                        {% set total_availability = 0 %}
+                        {% set min_fare = None %}
+                        {% if train.get('Classes') %}
+                            {% for cn, ci in train['Classes'].items() %}
+                                {% set total_availability = total_availability + ci['Availability'] %}
+                                {% if min_fare is none or ci['Fare'] < min_fare %}
+                                    {% set min_fare = ci['Fare'] %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    <div class="table-row">
+                        <div class="mono">{{ train.get('TrainID','—') }}</div>
+                        <div>{{ train.get('TrainName','—') }}</div>
+                        <div>{{ train.get('Route','—') }}</div>
+                        <div>{{ train.get('Time','—') }}</div>
+                        <div>
+                            {% if total_availability > 0 %}
+                                <span class="pill">{{ total_availability }} seats</span>
+                            {% else %}
+                                <span class="pill" style="border-color: rgba(220,38,38,.25); background: rgba(220,38,38,.06); color: var(--danger);">Sold out</span>
+                            {% endif %}
+                        </div>
+                        <div class="text-right">₹ {{ min_fare if min_fare is not none else '—' }}</div>
+                        <div class="text-right">
+                            {% if total_availability > 0 %}
+                                <a class="btn btn-primary" href="{{ url_for('booking', train_id=train['TrainID']) }}">Select</a>
+                            {% else %}
+                                <a class="btn btn-ghost" href="{{ url_for('booking', train_id=train['TrainID']) }}">View</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="card empty">
+                <div class="empty-title">No trains found</div>
+                <div class="empty-subtitle">Try a broader route/city keyword.</div>
+                <div class="empty-actions">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Back to search</a>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-inner">
+                <div class="muted">© 2026 Railway Ticketing Platform • Mock AWS Mode</div>
+                <div class="muted">Enterprise UI for capstone presentation</div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

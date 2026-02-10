@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed - Train Booking Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚂 Indian Railways Booking Platform</h1>
+            <p class="subtitle">Booking Confirmed!</p>
+        </header>
+
+        <main>
+            {% include 'navbar.html' %}
+
+            <div class="success-section">
+                <div class="success-icon">✅</div>
+                <h2>Your booking has been confirmed!</h2>
+                <p class="success-message">Thank you for choosing our train booking service.</p>
+
+                <div class="booking-details-card">
+                    <h3>Booking Details</h3>
+                    <div class="details-grid">
+                        <div class="detail-row highlight-row">
+                            <span class="detail-label">PNR Number:</span>
+                            <span class="detail-value highlight large">{{ booking.get('PNR', 'N/A') }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Booking ID:</span>
+                            <span class="detail-value">{{ booking['BookingID'] }}</span>
+                        </div>
+                        {% if booking.get('TrainName') %}
+                        <div class="detail-row">
+                            <span class="detail-label">Train Name:</span>
+                            <span class="detail-value highlight">{{ booking['TrainName'] }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="detail-row">
+                            <span class="detail-label">Train Number:</span>
+                            <span class="detail-value">{{ booking['TrainID'] }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Route:</span>
+                            <span class="detail-value">{{ booking['Route'] }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Journey Date:</span>
+                            <span class="detail-value">{{ booking.get('JourneyDate', 'N/A') }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Departure Time:</span>
+                            <span class="detail-value">{{ booking['Time'] }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Class:</span>
+                            <span class="detail-value highlight">{{ booking.get('Class', 'N/A') }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Number of Seats:</span>
+                            <span class="detail-value">{{ booking['Seats'] }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Total Fare:</span>
+                            <span class="detail-value highlight">₹{{ booking.get('TotalFare', 0)|int|string|replace('.0', '') }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value status-confirmed">{{ booking['Status'] }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if booking.get('BerthAllocations') %}
+                <div class="berth-details-card">
+                    <h3>Seat/Berth Allocations</h3>
+                    <div class="berth-grid">
+                        {% for berth in booking['BerthAllocations'] %}
+                        <div class="berth-item">
+                            <div class="berth-coach">{{ berth.get('Coach', 'N/A') }}</div>
+                            <div class="berth-number">{{ berth.get('Berth', 'N/A') }}</div>
+                            <div class="berth-type">{{ berth.get('Type', 'N/A') }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if booking.get('Passengers') %}
+                <div class="passengers-details-card">
+                    <h3>Passenger Details</h3>
+                    <div class="passengers-list">
+                        {% for passenger in booking['Passengers'] %}
+                        <div class="passenger-item">
+                            <div class="passenger-name">{{ passenger.get('Name', 'N/A') }}</div>
+                            <div class="passenger-info">
+                                <span>Age: {{ passenger.get('Age', 'N/A') }}</span>
+                                <span>Gender: {{ passenger.get('Gender', 'N/A') }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if receipt_path %}
+                <div class="receipt-section">
+                    <h3>Download Your Receipt</h3>
+                    <p>Your booking receipt has been generated and is available for download.</p>
+                    <a href="{{ url_for('static', filename=receipt_path) }}" class="btn btn-primary" download>
+                        📄 Download Receipt
+                    </a>
+                </div>
+                {% endif %}
+
+                <div class="action-buttons">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Book Another Train</a>
+                </div>
+
+                <div class="info-box">
+                    <h4>Important Information:</h4>
+                    <ul>
+                        <li>Please arrive at the station at least 30 minutes before departure.</li>
+                        <li>Keep your Booking ID safe for reference.</li>
+                        <li>A confirmation email has been sent (simulated in mock mode).</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Train Booking Platform. Mock AWS Mode.</p>
+        </footer>
+    </div>
+</body>
+</html>

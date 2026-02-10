@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Train - Indian Railways Booking Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .form-help.error {
+            color: #dc2626;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+        select option:disabled {
+            color: #9ca3af;
+            background-color: #f3f4f6;
+        }
+    </style>
+    <script>
+        // Store classes data from Jinja2 template
+        let TRAIN_CLASSES = {};
+        try {
+            const rawTrainClasses = '{{ (train.get("Classes") if train and train.get("Classes") else {}) | tojson | safe }}';
+            TRAIN_CLASSES = JSON.parse(rawTrainClasses);
+        } catch (e) {
+            console.error("Error parsing train classes:", e);
+            TRAIN_CLASSES = {};
+        }
+        
+        function updatePassengerFields() {
+            const seats = parseInt(document.getElementById('seats').value) || 1;
+            const container = document.getElementById('passengers-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < seats; i++) {
+                const div = document.createElement('div');
+                div.className = 'passenger-group';
+                div.innerHTML = `
+                    <h4>Passenger ${i + 1}</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" name="passenger_name_${i}" 
+                                   value="${i === 0 ? document.getElementById('passenger_name').value : ''}" 
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label>Age:</label>
+                            <input type="number" name="passenger_age_${i}" min="1" max="120" placeholder="Age">
+                        </div>
+                        <div class="form-group">
+                            <label>Gender:</label>
+                            <select name="passenger_gender_${i}">
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+        }
+        
+        function updateFare() {
+            const classSelect = document.getElementById('class_name');
+            const seats = parseInt(document.getElementById('seats').value) || 1;
+            const selectedClass = classSelect.value;
+            
+            // Reset fare display
+            document.getElementById('fare-display').textContent = '₹0';
+            document.getElementById('fare-per-seat').textContent = 'Select class to see fare';
+            
+            if (selectedClass && TRAIN_CLASSES && typeof TRAIN_CLASSES === 'object' && Object.keys(TRAIN_CLASSES).length > 0) {
+                const classes = TRAIN_CLASSES;
+                if (classes[selectedClass] && typeof classes[selectedClass].Fare === 'number') {
+                    const farePerSeat = classes[selectedClass].Fare;
+                    const totalFare = farePerSeat * seats;
+                    document.getElementById('fare-display').textContent = `₹${totalFare.toLocaleString('en-IN')}`;
+                    document.getElementById('fare-per-seat').textContent = `₹${farePerSeat.toLocaleString('en-IN')} per seat`;
+                }
+            }
+        }
+        
+        window.onload = function() {
+            document.getElementById('seats').addEventListener('change', updatePassengerFields);
+            document.getElementById('class_name').addEventListener('change', updateFare);
+            document.getElementById('seats').addEventListener('change', updateFare);
+            updatePassengerFields();
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚂 Indian Railways Booking Platform</h1>
+            <p class="subtitle">Complete Your Booking</p>
+        </header>
+
+        <main>
+            {% include 'navbar.html' %}
+
+            <div class="breadcrumb">
+                <a href="{{ url_for('index') }}">← Back to Search</a>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="booking-section">
+                <div class="train-summary-card">
+                    <h2>Train Details</h2>
+                    <div class="summary-details">
+                        {% if train.get('TrainName') %}
+                        <div class="summary-item">
+                            <span class="label">Train Name:</span>
+                            <span class="value highlight">{{ train['TrainName'] }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="summary-item">
+                            <span class="label">Train Number:</span>
+                            <span class="value">{{ train['TrainID'] }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Route:</span>
+                            <span class="value">{{ train['Route'] }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Departure Time:</span>
+                            <span class="value">{{ train['Time'] }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-form-card">
+                    <h2>Booking Information</h2>
+                    <form action="{{ url_for('booking', train_id=train['TrainID']) }}" method="POST" class="booking-form">
+                        <div class="form-group">
+                            <label for="journey_date">Journey Date:</label>
+                            <input 
+                                type="date" 
+                                id="journey_date" 
+                                name="journey_date" 
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="class_name">Select Class:</label>
+                            <select id="class_name" name="class_name" required onchange="updateFare()">
+                                <option value="">-- Select Class --</option>
+                                {% if train.get('Classes') %}
+                                    {% for class_name, class_info in train['Classes'].items() %}
+                                        <option value="{{ class_name }}" 
+                                                data-fare="{{ class_info['Fare'] }}" 
+                                                data-availability="{{ class_info['Availability'] }}"
+                                                {% if class_info['Availability'] <= 0 %}disabled{% endif %}>
+                                            {{ class_name }} - ₹{{ class_info['Fare'] }} 
+                                            {% if class_info['Availability'] > 0 %}
+                                                ({{ class_info['Availability'] }} available)
+                                            {% else %}
+                                                (Sold out)
+                                            {% endif %}
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            {% if train.get('Classes') %}
+                                {% set available_classes = 0 %}
+                                {% for class_name, class_info in train['Classes'].items() %}
+                                    {% if class_info['Availability'] > 0 %}
+                                        {% set available_classes = available_classes + 1 %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% if available_classes == 0 %}
+                                    <div class="form-help error">All classes are currently sold out for this train.</div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="seats">Number of Seats:</label>
+                            <input 
+                                type="number" 
+                                id="seats" 
+                                name="seats" 
+                                min="1" 
+                                max="6"
+                                value="1"
+                                required
+                                onchange="updatePassengerFields(); updateFare();"
+                            >
+                            <small class="form-help">Maximum 6 seats per booking</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="berth_preference">Berth Preference:</label>
+                            <select id="berth_preference" name="berth_preference">
+                                <option value="No Preference">No Preference</option>
+                                <option value="Lower">Lower</option>
+                                <option value="Middle">Middle</option>
+                                <option value="Upper">Upper</option>
+                                <option value="Side Lower">Side Lower</option>
+                                <option value="Side Upper">Side Upper</option>
+                            </select>
+                            <small class="form-help">Preference will be considered subject to availability</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="passenger_name">Primary Passenger Name:</label>
+                            <input 
+                                type="text" 
+                                id="passenger_name" 
+                                name="passenger_name" 
+                                placeholder="Enter primary passenger name"
+                                required
+                                autofocus
+                            >
+                        </div>
+
+                        <div id="passengers-container" class="passengers-container">
+                            <!-- Passenger fields will be dynamically added here -->
+                        </div>
+
+                        <div class="fare-summary">
+                            <h3>Fare Summary</h3>
+                            <div class="fare-details">
+                                <div class="fare-item">
+                                    <span class="fare-label">Total Fare:</span>
+                                    <span class="fare-value" id="fare-display">₹0</span>
+                                </div>
+                                <div class="fare-item">
+                                    <span class="fare-label" id="fare-per-seat">Select class to see fare</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-large">
+                                Confirm Booking
+                            </button>
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Indian Railways Booking Platform. Mock AWS Mode.</p>
+        </footer>
+    </div>
+</body>
+</html>

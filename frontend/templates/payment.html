@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Railway Booking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <div class="header-inner">
+                <div class="brand">
+                    <div class="brand-mark">
+                        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill="currentColor" d="M3 6h18v2H3V6Zm0 5h18v2H3v-2Zm0 5h10v2H3v-2Z"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <div class="brand-title">Railway Ticketing</div>
+                        <div class="brand-subtitle">Secure payment (mock)</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            {% include 'navbar.html' %}
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alerts">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="page-head">
+                <div>
+                    <h1 class="page-title">Payment</h1>
+                    <p class="page-subtitle">Review booking details and complete payment.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h2 class="card-title">Order summary</h2>
+                    <div class="kv">
+                        <div class="kv-row"><div class="kv-key">Train</div><div class="kv-val">{{ pending.train_name }} ({{ pending.train_id }})</div></div>
+                        <div class="kv-row"><div class="kv-key">Route</div><div class="kv-val">{{ pending.route }}</div></div>
+                        <div class="kv-row"><div class="kv-key">Journey date</div><div class="kv-val">{{ pending.journey_date }}</div></div>
+                        <div class="kv-row"><div class="kv-key">Departure</div><div class="kv-val">{{ pending.time }}</div></div>
+                        <div class="kv-row"><div class="kv-key">Class</div><div class="kv-val"><span class="pill">{{ pending.class_name }}</span></div></div>
+                        <div class="kv-row"><div class="kv-key">Seats</div><div class="kv-val">{{ pending.seats }}</div></div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="price-row">
+                        <div class="muted">Total payable</div>
+                        <div class="price">₹ {{ total_fare }}</div>
+                    </div>
+                    <div class="muted small">Offline mock mode: payment is simulated, no real gateway calls.</div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Pay now</h2>
+                    <form method="POST" class="form">
+                        <div class="form-group">
+                            <label for="payment_method">Payment method</label>
+                            <select id="payment_method" name="payment_method" required>
+                                <option value="UPI">UPI</option>
+                                <option value="Card">Card</option>
+                                <option value="NetBanking">NetBanking</option>
+                                <option value="Wallet">Wallet</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment_reference">Reference (optional)</label>
+                            <input id="payment_reference" name="payment_reference" placeholder="e.g., UPI TXN / last 4 digits" />
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Confirm payment</button>
+                            <a class="btn btn-ghost" href="{{ url_for('booking', train_id=pending.train_id) }}">Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-inner">
+                <div class="muted">© 2026 Railway Ticketing Platform • Payment simulated</div>
+                <div class="muted">Navy/charcoal enterprise UI</div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
+

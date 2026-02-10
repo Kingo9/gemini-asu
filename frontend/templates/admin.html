@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Railway Booking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <div class="header-inner">
+                <div class="brand">
+                    <div class="brand-mark">
+                        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill="currentColor" d="M12 2l9 4v6c0 5-3.8 9.4-9 10c-5.2-.6-9-5-9-10V6l9-4Zm0 7a4 4 0 1 0 0 8a4 4 0 0 0 0-8Z"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <div class="brand-title">Railway Ticketing</div>
+                        <div class="brand-subtitle">Admin console (mock)</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            {% include 'navbar.html' %}
+
+            <div class="page-head">
+                <div>
+                    <h1 class="page-title">Admin</h1>
+                    <p class="page-subtitle">Operational overview (mock data; no AWS calls).</p>
+                </div>
+            </div>
+
+            <div class="grid grid-3">
+                <div class="card kpi">
+                    <div class="kpi-label">Total trains</div>
+                    <div class="kpi-value">{{ trains|length }}</div>
+                    <div class="kpi-meta">Static dataset</div>
+                </div>
+                <div class="card kpi">
+                    <div class="kpi-label">Sold out trains</div>
+                    <div class="kpi-value">{{ sold_out_trains|length }}</div>
+                    <div class="kpi-meta">All classes 0 seats</div>
+                </div>
+                <div class="card kpi">
+                    <div class="kpi-label">Mode</div>
+                    <div class="kpi-value">Mock</div>
+                    <div class="kpi-meta">Offline / simulated services</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-head">
+                    <h2 class="section-title">Sold out</h2>
+                </div>
+
+                {% if sold_out_trains %}
+                <div class="table card">
+                    <div class="table-row table-head">
+                        <div>Train</div>
+                        <div>Route</div>
+                        <div>Time</div>
+                    </div>
+                    {% for t in sold_out_trains %}
+                    <div class="table-row">
+                        <div>{{ t.get('TrainName','—') }} ({{ t.get('TrainID','—') }})</div>
+                        <div>{{ t.get('Route','—') }}</div>
+                        <div>{{ t.get('Time','—') }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="card empty">
+                    <div class="empty-title">No sold-out trains</div>
+                    <div class="empty-subtitle">All trains currently have availability.</div>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-inner">
+                <div class="muted">© 2026 Railway Ticketing Platform • Admin mock console</div>
+                <div class="muted">Enterprise capstone UI</div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
+

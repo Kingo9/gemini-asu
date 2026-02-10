@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Railway Express</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header animate-fade-in">
+            <div class="header-inner">
+                <div class="brand">
+                    <div class="brand-mark" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <div class="brand-title">Railway Express</div>
+                        <div class="brand-subtitle">Manage Your Profile</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main animate-slide-in">
+            {% include 'navbar.html' %}
+
+            <div class="page-head">
+                <div>
+                    <h1 class="page-title">Profile Settings</h1>
+                    <p class="page-subtitle">Update your personal information and preferences</p>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alerts">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="grid grid-2">
+                <div class="card animate-fade-in">
+                    <h2 class="card-title">Personal Information</h2>
+                    <form action="{{ url_for('update_profile') }}" method="POST" class="form">
+                        <div class="form-group">
+                            <label for="full_name">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px; color: var(--neutral-500);">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                Full Name
+                            </label>
+                            <input 
+                                type="text" 
+                                id="full_name" 
+                                name="full_name" 
+                                value="{{ user.full_name }}"
+                                required
+                            >
+                        </div>
+                    <form action="{{ url_for('update_profile') }}" method="POST" class="profile-form">
+                        <div class="form-group">
+                            <label for="full_name">Full Name:</label>
+                            <input 
+                                type="text" 
+                                id="full_name" 
+                                name="full_name" 
+                                value="{{ user.full_name }}"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="username">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px; color: var(--neutral-500);">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="8.5" cy="7" r="4"/>
+                                    <line x1="20" y1="8" x2="20" y2="14"/>
+                                    <line x1="23" y1="11" x2="17" y2="11"/>
+                                </svg>
+                                Username
+                            </label>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                value="{{ user.username }}"
+                                disabled
+                                style="background: var(--neutral-100); color: var(--neutral-500); cursor: not-allowed;"
+                            >
+                            <div class="muted small">Username cannot be changed</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px; color: var(--neutral-500);">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                                Email Address
+                            </label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                value="{{ user.email }}"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px; color: var(--neutral-500);">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                </svg>
+                                Phone Number
+                            </label>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                name="phone" 
+                                value="{{ user.phone or '' }}"
+                                placeholder="Enter phone number"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px; color: var(--neutral-500);">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                                Member Since
+                            </label>
+                            <input 
+                                type="text" 
+                                value="{{ user.created_at[:10] }}"
+                                disabled
+                                style="background: var(--neutral-100); color: var(--neutral-500); cursor: not-allowed;"
+                            >
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                                </svg>
+                                Update Profile
+                            </button>
+                            <a href="{{ url_for('booking_history') }}" class="btn btn-ghost">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16v-2"/>
+                                    <line x1="12" y1="22" x2="12" y2="12"/>
+                                </svg>
+                                Booking History
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card animate-fade-in" style="animation-delay: 0.1s">
+                    <h2 class="card-title">Account Summary</h2>
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-6);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-4); background: var(--neutral-50); border-radius: var(--radius-lg);">
+                            <div>
+                                <div style="font-weight: var(--font-semibold); color: var(--neutral-700);">Total Bookings</div>
+                                <div class="muted small">All-time count</div>
+                            </div>
+                            <div style="font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--primary-600);">{{ user_stats.total_bookings or 0 }}</div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-4); background: var(--neutral-50); border-radius: var(--radius-lg);">
+                            <div>
+                                <div style="font-weight: var(--font-semibold); color: var(--neutral-700);">Account Status</div>
+                                <div class="muted small">Current status</div>
+                            </div>
+                            <div>
+                                <span class="pill pill-success">Active</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-4); background: var(--neutral-50); border-radius: var(--radius-lg);">
+                            <div>
+                                <div style="font-weight: var(--font-semibold); color: var(--neutral-700);">Member Type</div>
+                                <div class="muted small">Account level</div>
+                            </div>
+                            <div>
+                                <span class="pill pill-primary">{{ "Admin" if user.get('is_admin') else "Regular User" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: var(--spacing-6); padding-top: var(--spacing-6); border-top: 1px solid var(--neutral-200);">
+                        <h3 style="font-weight: var(--font-semibold); color: var(--neutral-800); margin-bottom: var(--spacing-3);">Quick Actions</h3>
+                        <div style="display: flex; flex-direction: column; gap: var(--spacing-3);">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="m21 21-4.35-4.35"/>
+                                </svg>
+                                Book New Ticket
+                            </a>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-ghost">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="7" height="7"/>
+                                    <rect x="14" y="3" width="7" height="7"/>
+                                    <rect x="14" y="14" width="7" height="7"/>
+                                    <rect x="3" y="14" width="7" height="7"/>
+                                </svg>
+                                Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-inner">
+                <div>
+                    <div style="font-weight: var(--font-semibold); color: var(--neutral-700); margin-bottom: var(--spacing-1);">Railway Express</div>
+                    <div class="muted">© 2026 All rights reserved</div>
+                </div>
+                <div style="display: flex; gap: var(--spacing-6);">
+                    <a href="#" class="link">Account Settings</a>
+                    <a href="#" class="link">Privacy</a>
+                    <a href="#" class="link">Help</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

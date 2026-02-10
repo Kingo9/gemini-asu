@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Railway Express</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header animate-fade-in">
+            <div class="header-inner">
+                <div class="brand">
+                    <div class="brand-mark">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <div class="brand-title">Railway Express</div>
+                        <div class="brand-subtitle">Your Personal Dashboard</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main animate-slide-in">
+            {% include 'navbar.html' %}
+
+            <div class="page-head">
+                <div>
+                    <h1 class="page-title">Welcome, {{ current_user.full_name or current_user.username }}!</h1>
+                    <p class="page-subtitle">Manage your bookings and explore our services</p>
+                </div>
+                <div class="page-actions">
+                    <a class="btn btn-primary btn-lg" href="{{ url_for('index') }}">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        Book a Ticket
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-3">
+                <div class="card kpi animate-fade-in" style="animation-delay: 0.1s">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: var(--primary-100); border-radius: var(--radius-xl); margin: 0 auto 16px;">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary-600);">
+                            <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16v-2"/>
+                            <line x1="12" y1="22" x2="12" y2="12"/>
+                        </svg>
+                    </div>
+                    <div class="kpi-label">Total Bookings</div>
+                    <div class="kpi-value">{{ stats.total_bookings or 0 }}</div>
+                    <div class="kpi-meta">All-time bookings</div>
+                </div>
+                <div class="card kpi animate-fade-in" style="animation-delay: 0.2s">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: var(--success-100); border-radius: var(--radius-xl); margin: 0 auto 16px;">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--success-600);">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <div class="kpi-label">Account</div>
+                    <div class="kpi-value" style="font-size: var(--text-2xl);">{{ current_user.username }}</div>
+                    <div class="kpi-meta">{{ current_user.email }}</div>
+                </div>
+                <div class="card kpi animate-fade-in" style="animation-delay: 0.3s">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: var(--secondary-100); border-radius: var(--radius-xl); margin: 0 auto 16px;">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--secondary-600);">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="m9 12 2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <div class="kpi-label">Status</div>
+                    <div class="kpi-value" style="color: var(--success-600);">Active</div>
+                    <div class="kpi-meta">Account verified</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-head">
+                    <h2 class="section-title">Recent Bookings</h2>
+                    <a class="btn btn-ghost btn-sm" href="{{ url_for('booking_history') }}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 20h9"/>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                        View All
+                    </a>
+                </div>
+
+                {% if bookings %}
+                <div class="card" style="padding: 0; overflow: hidden; border-radius: var(--radius-2xl);">
+                    <div style="overflow-x: auto;">
+                        <div style="min-width: 800px;">
+                            <div class="table-row table-head" style="background: var(--neutral-100); font-weight: var(--font-bold);">
+                                <div>PNR</div>
+                                <div>Train</div>
+                                <div>Route</div>
+                                <div>Date</div>
+                                <div>Class</div>
+                                <div style="text-align: right;">Amount</div>
+                                <div style="text-align: right;">Actions</div>
+                            </div>
+                            {% for b in bookings %}
+                            <div class="table-row" style="transition: var(--transition-all);">
+                                <div>
+                                    <div class="mono" style="font-weight: var(--font-semibold); color: var(--primary-700);">{{ b.get('PNR','—') }}</div>
+                                </div>
+                                <div>
+                                    <div style="font-weight: var(--font-medium);">{{ b.get('TrainName','—') }}</div>
+                                    <div class="muted small">{{ b.get('TrainID','—') }}</div>
+                                </div>
+                                <div>{{ b.get('Route','—') }}</div>
+                                <div>{{ b.get('JourneyDate','—') }}</div>
+                                <div><span class="pill pill-primary">{{ b.get('Class','—') }}</span></div>
+                                <div style="text-align: right; font-weight: var(--font-bold); color: var(--success-700);">₹{{ b.get('TotalFare',0) }}</div>
+                                <div style="text-align: right;">
+                                    <a class="btn btn-ghost btn-sm" href="{{ url_for('booking_success', booking_id=b['BookingID']) }}">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                        View
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card empty animate-fade-in" style="animation-delay: 0.4s">
+                    <div style="display: flex; justify-content: center; margin-bottom: var(--spacing-6);">
+                        <div style="width: 80px; height: 80px; background: var(--neutral-100); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--neutral-400);">
+                                <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16v-2"/>
+                                <line x1="12" y1="22" x2="12" y2="12"/>
+                                <path d="m12 12 4.5-2.5"/>
+                                <path d="m12 12-4.5-2.5"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="empty-title">No Bookings Yet</div>
+                    <div class="empty-subtitle">You haven't made any bookings yet. Start planning your journey today!</div>
+                    <div class="empty-actions">
+                        <a class="btn btn-primary btn-lg" href="{{ url_for('index') }}">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="m21 21-4.35-4.35"/>
+                            </svg>
+                            Search Trains
+                        </a>
+                        <a class="btn btn-ghost" href="{{ url_for('booking_history') }}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 20h9"/>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                            </svg>
+                            Booking History
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-inner">
+                <div>
+                    <div style="font-weight: var(--font-semibold); color: var(--neutral-700); margin-bottom: var(--spacing-1);">Railway Express</div>
+                    <div class="muted">© 2026 All rights reserved</div>
+                </div>
+                <div style="display: flex; gap: var(--spacing-6);">
+                    <a href="#" class="link">Support</a>
+                    <a href="#" class="link">FAQ</a>
+                    <a href="#" class="link">Contact</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
+
